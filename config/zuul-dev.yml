@@ -1,0 +1,39 @@
+#zuul-dev.yml
+spring:
+  application:
+    name: zuul
+    cloud:
+     config:
+      override-none: true
+      
+server:
+  port: 3001
+  
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka1:2001/eureka, http://eureka2:2002/eureka
+#zuul是网关，单独的服务器，能做权限校验，用户请求转发，面对客户端。不推荐使用重试
+#feign是声明式，需要内部发送一个请求在服务与服务之间调用，面对服务端
+zuul:
+  routes:
+    item-service: /item-service/**      
+    user-service: /user-service/**      
+    order-service: /order-service/**   
+    
+  retryable: true  #启用重试 
+     
+ribbon: #重试默认参数   
+  ConnectTimeout: 1000
+  ReadTimeout: 1000
+  MaxAutoRetriesNextServer: 1 
+  MaxAutoRetries: 1     
+  
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 500   
+                    
